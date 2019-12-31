@@ -13,13 +13,14 @@ const usersRouter = require('./routes/users');
 
 const app = express();
 
-app.use(cors());
-app.use(compression());
-app.use(bodyParser.json());
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
+// TODO: Update cors to handle my specific routing
+app.use(cors());
+app.use(compression());
+app.use(bodyParser.json());
 
 app.use(logger('dev'));
 app.use(express.json());
