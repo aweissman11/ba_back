@@ -14,8 +14,8 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 
 const tableName = 'ba_rsvps';
-let user_id = 'test_user';
 let user_name = 'Test User';
+let user_id = 'mock-aws-generated-auth-id1'
 
 // /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -24,10 +24,31 @@ router.get('/', function (req, res, next) {
 
 router.post('/api/rsvp', (req, res, next) => {
   let item = req.body.Rsvp;
-  item.user_id = user_id;
   item.user_name = user_name;
-  item.unid = user_id + ':' + uuidv4();
-  item.timestamp = Date.now().toString();
+  item.user_id = user_id
+  item.rsvp_id = user_id + ':' + uuidv4();
+  item.timestamp = user_id + ':' + Date.now().toString();
+  item.last_updated = Date.now().toString();
+
+
+  let requiredFields = [
+    'name', 'email', 'firstTime',
+    'people', 'lodging', 'dogs',
+    'arrival', 'events', 'chores',
+    'driving', 'spots', 'songs',
+    'user_name', 'user_id', 'rsvp_id'
+  ];
+
+  let missingProps = requiredFields.filter(prop => {
+    return !Object.keys(item).includes(prop);
+  });
+
+  if (missingProps.length) {
+    return res.status(400).send({
+      message: `missing required fields: ${missingProps}`,
+      status: 400
+    });
+  }
 
   docClient.put({
     TableName: tableName,
@@ -47,18 +68,37 @@ router.post('/api/rsvp', (req, res, next) => {
 
 router.patch('/api/rsvp', (req, res, next) => {
   let item = req.body.Rsvp;
-  item.user_id = user_id;
   item.user_name = user_name;
+  item.last_updated = Date.now().toString();
+
+  let requiredFields = [
+    'name', 'email', 'firstTime',
+    'people', 'lodging', 'dogs',
+    'arrival', 'events', 'chores',
+    'driving', 'spots', 'songs',
+    'user_name', 'user_id', 'rsvp_id'
+  ];
+
+  let missingProps = requiredFields.filter(prop => {
+    return !Object.keys(item).includes(prop);
+  });
+
+  if (missingProps.length) {
+    return res.status(400).send({
+      message: `missing required fields: ${missingProps}`,
+      status: 400
+    });
+  }
 
   docClient.put({
     TableName: tableName,
     Item: item,
     ConditionExpression: '#t = :t',
     ExpressionAttributeNames: {
-      '#t': 'unid'
+      '#t': 'rsvp_id'
     },
     ExpressionAttributeValues: {
-      ':t': item.unid
+      ':t': item.rsvp_id
     }
   }, (err, data) => {
     if (err) {
@@ -73,28 +113,14 @@ router.patch('/api/rsvp', (req, res, next) => {
   })
 });
 
+
+//  get all RSVPS
 router.get('/api/rsvps', (req, res, next) => {
-  let limit = req.query.limit ? parseInt(req.query.limit) : 5;
   let params = {
-    TableName: tableName,
-    KeyConditionExpression: "user_id = :uid",
-    ExpressionAttributeValues: {
-      ":uid": user_id
-    },
-    Limit: limit,
-    ScanIndexForward: false
+    TableName: tableName
   };
 
-  let startTimestamp = req.query.start ? parseInt(req.query.start) : 0;
-
-  if (startTimestamp > 0) {
-    params.ExclusiveStartKey = {
-      user_id: user_id,
-      timestamp: startTimestamp
-    }
-  }
-
-  docClient.query(params, (err, data) => {
+  docClient.scan(params, (err, data) => {
     if (err) {
       console.log(err);
       return res.status(err.statusCode).send({
@@ -107,21 +133,65 @@ router.get('/api/rsvps', (req, res, next) => {
   });
 });
 
+
+router.get('/api/rsvp/:user_id', (req, res, next) => {
+  let user_id = req.params.user_id;
+  let params = {
+    TableName: tableName,
+    IndexName: "user_id-arrival-index",
+    KeyConditionExpression: "user_id = :user_id",
+    ExpressionAttributeValues: {
+      ":user_id": user_id
+    },
+    Limit: 5
+  };
+
+  docClient.query(params, (err, data) => {
+    if (err) {
+      console.log(err);
+      return res.status(err.statusCode).send({
+        message: err.message,
+        status: err.statusCode
+      });
+    } else {
+      if (!_.isEmpty(data.Items)) {
+        return res.status(200).send(data.Items);
+      } else {
+        return res.status(404).send();
+      }
+    }
+  });
+});
+
+router.delete('/api/rsvp/:timestamp', (req, res, next) => {
+  let timestamp = req.params.timestamp;
+
+  console.log('timestamp :', timestamp);
+  console.log('user_id :', user_id);
+
+  let params = {
+    TableName: tableName,
+    Key: {
+      user_id: user_id,
+      timestamp: timestamp
+    }
+  };
+
+  docClient.delete(params, (err, data) => {
+    if (err) {
+      console.log('err :', err);
+      return res.status(err.statusCode).send({
+        message: err.message,
+        status: err.statusCode
+      });
+    } else {
+      console.log('data :', data);
+      return res.status(200).send({
+        status: 200,
+        message: `${user_id}'s rsvp has been deleted`
+      });
+    }
+  });
+});
+
 module.exports = router;
-
-
-
-// let blankInfo = {
-//   "name": "",
-//   "email": "",
-//   "firstTime": false,
-//   "people": [],
-//   "lodging": "tent",
-//   "dogs": "",
-//   "arrival": "June 26, 2020",
-//   "events": [],
-//   "chores": [],
-//   "driving": "full",
-//   "spots": "",
-//   "songs": []
-// }
