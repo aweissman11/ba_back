@@ -15,7 +15,7 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 const tableName = 'ba_rsvps';
 let user_name = 'Test User';
-let user_id = 'mock-aws-generated-auth-id4'
+// let user_id = 'mock-aws-generated-auth-id4'
 
 // /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -24,11 +24,6 @@ router.get('/', function (req, res, next) {
 
 router.post('/api/rsvp', (req, res, next) => {
   let item = req.body.Rsvp;
-  item.user_name = user_name;
-  item.user_id = user_id
-  item.rsvp_id = user_id + ':' + uuidv4();
-  item.timestamp = user_id + ':' + Date.now().toString();
-  item.last_updated = Date.now().toString();
 
 
   let requiredFields = [
@@ -36,7 +31,7 @@ router.post('/api/rsvp', (req, res, next) => {
     'people', 'lodging', 'dogs',
     'arrival', 'events', 'chores',
     'driving', 'spots', 'songs',
-    'user_name', 'user_id', 'rsvp_id'
+    'user_name', 'user_id'
   ];
 
   let missingProps = requiredFields.filter(prop => {
@@ -49,6 +44,13 @@ router.post('/api/rsvp', (req, res, next) => {
       status: 400
     });
   }
+
+  let user_id = item.user_id
+
+  item.rsvp_id = user_id + ':' + uuidv4();
+  item.timestamp = user_id + ':' + Date.now().toString();
+  item.last_updated = Date.now().toString();
+
 
   docClient.put({
     TableName: tableName,
