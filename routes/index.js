@@ -15,7 +15,7 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 const tableName = 'ba_rsvps';
 let user_name = 'Test User';
-let user_id = 'mock-aws-generated-auth-id1'
+let user_id = 'mock-aws-generated-auth-id4'
 
 // /* GET home page. */
 router.get('/', function (req, res, next) {
