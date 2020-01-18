@@ -1,11 +1,28 @@
 const express = require('express');
 const _ = require('underscore');
 const request = require("request");
+const cors = require('cors');
 
 const uuidv4 = require('uuid/v4');
 const jwtDecode = require('jwt-decode');
 
 const checkForMissingFields = require('./utils/helpers');
+
+var whitelist = [
+  'http://localhost:3001',
+  'http://chelseyandaaronsbigadventure.com',
+  'http://bigadventureapi-env.us-west-2.elasticbeanstalk.com',
+  'http://localhost:3000'
+];
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}
 
 const router = express.Router();
 
@@ -92,7 +109,7 @@ router.patch('/api/rsvp', (req, res, next) => {
 
 
 //  get all RSVPS
-router.get('/api/rsvps', (req, res, next) => {
+router.get('/api/rsvps', cors(corsOptions), (req, res, next) => {
   let params = {
     TableName: tableName
   };
@@ -111,7 +128,7 @@ router.get('/api/rsvps', (req, res, next) => {
 });
 
 
-router.get('/api/rsvp/:user_id', (req, res, next) => {
+router.get('/api/rsvp/:user_id', cors(corsOptions), (req, res, next) => {
   let user_id = req.params.user_id;
   let params = {
     TableName: tableName,

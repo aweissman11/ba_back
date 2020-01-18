@@ -6,27 +6,12 @@ const path = require('path');
 // const logger = require('morgan');
 
 const bodyParser = require('body-parser');
-const cors = require('cors');
 const compression = require('compression');
 
 const indexRouter = require('./routes/index');
 // const usersRouter = require('./routes/users');
 
 const app = express();
-
-
-var whitelist = ['http://localhost:3001', 'http://chelseyandaaronsbigadventure.com', 'http://bigadventureapi-env.us-west-2.elasticbeanstalk.com'];
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-}
-
-app.use(cors(corsOptions));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
