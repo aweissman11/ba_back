@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 // const cookieParser = require('cookie-parser');
 // const logger = require('morgan');
+const cors = require('cors');
 
 const bodyParser = require('body-parser');
 const compression = require('compression');
@@ -12,6 +13,35 @@ const indexRouter = require('./routes/index');
 // const usersRouter = require('./routes/users');
 
 const app = express();
+
+
+function allowCrossDomain(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH,   DELETE, OPTIONS');
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With,   Content-Type, Accept");
+  next()
+}
+app.use(allowCrossDomain)
+app.use(cors());
+// var allowedOrigins = [
+//   'http://localhost:3001',
+//   'http://chelseyandaaronsbigadventure.com',
+//   'http://bigadventureapi-env.us-west-2.elasticbeanstalk.com',
+//   'http://localhost:3000'
+// ];
+
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     console.log('origin :', origin);
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.indexOf(origin) === -1) {
+//       var msg = 'The CORS policy for this site does not ' +
+//         'allow access from the specified Origin: ' + origin;
+//       return callback(new Error(msg), false);
+//     }
+//     return callback(null, true);
+//   }
+// }));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
