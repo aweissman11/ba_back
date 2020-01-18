@@ -130,6 +130,7 @@ router.get('/api/rsvps', cors(corsOptions), (req, res, next) => {
 
 router.get('/api/rsvp/:user_id', cors(corsOptions), (req, res, next) => {
   let user_id = req.params.user_id;
+
   let params = {
     TableName: tableName,
     IndexName: "user_id-arrival-index",
