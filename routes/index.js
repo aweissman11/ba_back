@@ -41,7 +41,7 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'BA Back' });
 });
 
-router.post('/api/rsvp', (req, res, next) => {
+router.post('/api/rsvp', cors(corsOptions), (req, res, next) => {
   let item = req.body.Rsvp;
 
   let missingPropCheck = checkForMissingFields(item);
@@ -73,7 +73,7 @@ router.post('/api/rsvp', (req, res, next) => {
   })
 });
 
-router.patch('/api/rsvp', (req, res, next) => {
+router.patch('/api/rsvp', cors(corsOptions), (req, res, next) => {
   let item = req.body.Rsvp;
   item.user_name = user_name;
   item.last_updated = Date.now().toString();
@@ -156,7 +156,7 @@ router.get('/api/rsvp/:user_id', cors(corsOptions), (req, res, next) => {
   });
 });
 
-router.delete('/api/rsvp/:timestamp', (req, res, next) => {
+router.delete('/api/rsvp/:timestamp', cors(corsOptions), (req, res, next) => {
   let timestamp = req.params.timestamp;
 
   let params = {
