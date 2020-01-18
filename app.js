@@ -15,13 +15,13 @@ const indexRouter = require('./routes/index');
 const app = express();
 
 
-var whitelist = ['http://localhost:3001', 'http://chelseyandaaronsbigadventure.com']
+var whitelist = ['http://localhost:3001', 'http://chelseyandaaronsbigadventure.com', 'http://bigadventureapi-env.us-west-2.elasticbeanstalk.com'];
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
+      callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'))
+      callback(new Error('Not allowed by CORS'));
     }
   }
 }
