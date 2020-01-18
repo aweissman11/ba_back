@@ -8,7 +8,6 @@ const jwtDecode = require('jwt-decode');
 
 const checkForMissingFields = require('./utils/helpers');
 
-
 var allowedOrigins = [
   'http://localhost:3001',
   'http://localhost:3001/rsvp',
@@ -19,21 +18,16 @@ var allowedOrigins = [
 
 let corSetting = cors({
   origin: function (origin, callback) {
-    console.log('origin :', origin);
     if (!origin) {
-      console.log('no origin!!!!');
       return callback(null, true)
     };
     if (allowedOrigins.indexOf(origin) === -1) {
       var msg = 'The CORS policy for this site does not ' +
         'allow access from the specified Origin: ' + origin;
-      console.log('msg :', msg);
       return callback(new Error(msg), false);
     }
 
-    console.log('NOT REJECTED HERE!');
     let corsResult = callback(null, true);
-    console.log('corsResult :', corsResult);
     return corsResult;
   }
 });
@@ -47,8 +41,6 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 
 
 const tableName = 'ba_rsvps';
-let user_name = 'Test User';
-// let user_id = 'mock-aws-generated-auth-id4'
 
 // /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -89,7 +81,6 @@ router.post('/api/rsvp', corSetting, (req, res, next) => {
 
 router.patch('/api/rsvp', corSetting, (req, res, next) => {
   let item = req.body.Rsvp;
-  item.user_name = user_name;
   item.last_updated = Date.now().toString();
 
   let missingPropCheck = checkForMissingFields(item, true);
