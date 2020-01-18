@@ -5,6 +5,8 @@ const request = require("request");
 const uuidv4 = require('uuid/v4');
 const jwtDecode = require('jwt-decode');
 
+const checkForMissingFields = require('./utils/helpers');
+
 const router = express.Router();
 
 const AWS = require('aws-sdk');
@@ -25,24 +27,10 @@ router.get('/', function (req, res, next) {
 router.post('/api/rsvp', (req, res, next) => {
   let item = req.body.Rsvp;
 
+  let missingPropCheck = checkForMissingFields(item);
 
-  let requiredFields = [
-    'name', 'email', 'firstTime',
-    'people', 'lodging', 'dogs',
-    'arrival', 'events', 'chores',
-    'driving', 'spots', 'songs',
-    'user_name', 'user_id'
-  ];
-
-  let missingProps = requiredFields.filter(prop => {
-    return !Object.keys(item).includes(prop);
-  });
-
-  if (missingProps.length) {
-    return res.status(400).send({
-      message: `missing required fields: ${missingProps}`,
-      status: 400
-    });
+  if (!missingPropCheck.ok) {
+    return res.send(missingPropCheck);
   }
 
   let user_id = item.user_id
@@ -57,11 +45,11 @@ router.post('/api/rsvp', (req, res, next) => {
     Item: item
   }, (err, data) => {
     if (err) {
-      console.log('err :', err);
-      return res.status(err.statusCode).send({
+      return res.send({
         message: err.message,
-        status: err.statusCode
-      })
+        status: err.statusCode,
+        ok: false
+      });
     } else {
       return res.status(200).send(item);
     }
@@ -73,23 +61,10 @@ router.patch('/api/rsvp', (req, res, next) => {
   item.user_name = user_name;
   item.last_updated = Date.now().toString();
 
-  let requiredFields = [
-    'name', 'email', 'firstTime',
-    'people', 'lodging', 'dogs',
-    'arrival', 'events', 'chores',
-    'driving', 'spots', 'songs',
-    'user_name', 'user_id', 'rsvp_id'
-  ];
+  let missingPropCheck = checkForMissingFields(item, true);
 
-  let missingProps = requiredFields.filter(prop => {
-    return !Object.keys(item).includes(prop);
-  });
-
-  if (missingProps.length) {
-    return res.status(400).send({
-      message: `missing required fields: ${missingProps}`,
-      status: 400
-    });
+  if (!missingPropCheck.ok) {
+    return res.send(missingPropCheck);
   }
 
   docClient.put({
@@ -104,10 +79,10 @@ router.patch('/api/rsvp', (req, res, next) => {
     }
   }, (err, data) => {
     if (err) {
-      console.log('err :', err);
-      return res.status(err.statusCode).send({
+      return res.send({
         message: err.message,
-        status: err.statusCode
+        status: err.statusCode,
+        ok: false
       });
     } else {
       return res.status(200).send(item);
@@ -124,10 +99,10 @@ router.get('/api/rsvps', (req, res, next) => {
 
   docClient.scan(params, (err, data) => {
     if (err) {
-      console.log(err);
-      return res.status(err.statusCode).send({
+      return res.send({
         message: err.message,
-        status: err.statusCode
+        status: err.statusCode,
+        ok: false
       });
     } else {
       return res.status(200).send(data);
@@ -150,7 +125,6 @@ router.get('/api/rsvp/:user_id', (req, res, next) => {
 
   docClient.query(params, (err, data) => {
     if (err) {
-      console.log(err);
       return res.status(err.statusCode).send({
         message: err.message,
         status: err.statusCode
@@ -168,9 +142,6 @@ router.get('/api/rsvp/:user_id', (req, res, next) => {
 router.delete('/api/rsvp/:timestamp', (req, res, next) => {
   let timestamp = req.params.timestamp;
 
-  console.log('timestamp :', timestamp);
-  console.log('user_id :', user_id);
-
   let params = {
     TableName: tableName,
     Key: {
@@ -181,13 +152,11 @@ router.delete('/api/rsvp/:timestamp', (req, res, next) => {
 
   docClient.delete(params, (err, data) => {
     if (err) {
-      console.log('err :', err);
       return res.status(err.statusCode).send({
         message: err.message,
         status: err.statusCode
       });
     } else {
-      console.log('data :', data);
       return res.status(200).send({
         status: 200,
         message: `${user_id}'s rsvp has been deleted`

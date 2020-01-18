@@ -1,3 +1,4 @@
+// TODO: Update cors to handle my specific routing
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -13,12 +14,24 @@ const indexRouter = require('./routes/index');
 
 const app = express();
 
+
+var whitelist = ['http://localhost:3001', 'http://chelseyandaaronsbigadventure.com']
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+
+app.use(cors(corsOptions));
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-// TODO: Update cors to handle my specific routing
-app.use(cors());
 app.use(compression());
 app.use(bodyParser.json());
 
