@@ -11,7 +11,9 @@ const checkForMissingFields = require('./utils/helpers');
 var allowedOrigins = [
   'http://localhost:3001',
   'http://localhost:3001/rsvp',
-  'http://chelseyandaaronsbigadventure.com',
+  'https://chelseyandaaronsbigadventure.com',
+  'https://www.chelseyandaaronsbigadventure.com',
+  'https://api.chelseyandaaronsbigadventure.com',
   'http://bigadventureapi-env.us-west-2.elasticbeanstalk.com',
   'http://localhost:3000'
 ];
