@@ -32,6 +32,30 @@ const checkForMissingFields = (item, isPatch) => {
     return item[field].length === 0;
   });
 
+  let attendeeFields = [
+    'fullName', 'allergies'
+  ];
+
+  attendeeFields.forEach(field => {
+    item.people.forEach(person => {
+      if (!person[field].length) {
+        emptyProps.push('Attendee ' + field);
+      }
+    })
+  })
+
+  let songFields = [
+    'song', 'artist'
+  ];
+
+  songFields.forEach(field => {
+    item.songs.forEach(song => {
+      if (!song[field].length) {
+        field = field === 'song' ? 'name' : field;
+        emptyProps.push('Song ' + field);
+      }
+    })
+  })
 
   if (emptyProps.length) {
     return {
