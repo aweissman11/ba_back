@@ -1,4 +1,4 @@
-const checkForMissingFields = (item, isPatch) => {
+const validateFields = (item, isPatch) => {
 
   let requiredFields = [
     'name', 'email', 'firstTime',
@@ -66,8 +66,23 @@ const checkForMissingFields = (item, isPatch) => {
     };
   }
 
+  const validateEmail = (email) => {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
+
+  let isValidEmail = validateEmail(item.email);
+
+  if (!isValidEmail) {
+    return {
+      message: `Please enter a valid email address`,
+      status: 400,
+      ok: false
+    };
+  }
+
   return { ok: true };
 
 }
 
-module.exports = checkForMissingFields;
+module.exports = validateFields;

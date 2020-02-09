@@ -6,7 +6,7 @@ const cors = require('cors');
 const uuidv4 = require('uuid/v4');
 const jwtDecode = require('jwt-decode');
 
-const checkForMissingFields = require('./utils/helpers');
+const validateFields = require('./utils/helpers');
 
 var allowedOrigins = [
   'http://localhost:3001',
@@ -52,7 +52,7 @@ router.get('/', function (req, res, next) {
 router.post('/api/rsvp', corSetting, (req, res, next) => {
   let item = req.body.Rsvp;
 
-  let missingPropCheck = checkForMissingFields(item);
+  let missingPropCheck = validateFields(item);
 
   if (!missingPropCheck.ok) {
     return res.send(missingPropCheck);
@@ -85,7 +85,7 @@ router.patch('/api/rsvp', corSetting, (req, res, next) => {
   let item = req.body.Rsvp;
   item.last_updated = Date.now().toString();
 
-  let missingPropCheck = checkForMissingFields(item, true);
+  let missingPropCheck = validateFields(item, true);
 
   if (!missingPropCheck.ok) {
     return res.send(missingPropCheck);
