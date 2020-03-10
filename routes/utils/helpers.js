@@ -7,8 +7,6 @@ const validateFields = (item, isPatch) => {
     'user_name', 'user_id', 'attending'
   ];
 
-  isPatch && requiredFields.push('rsvp_id');
-
   let missingProps = requiredFields.filter(prop => {
     return !Object.keys(item).includes(prop);
   });
@@ -94,7 +92,7 @@ const validateFields = (item, isPatch) => {
   // MAKE SURE THEY SIGN UP FOR EVENTS AND ADD ATTENDEES
   // ==========================================
 
-  if (!item.people.length) {
+  if (item.attending === true && !item.people.length) {
     return {
       message: `No one is coming? Not even you? Please click the 'Add Attendee' button and let us know who we need to feed.`,
       status: 400,
@@ -102,7 +100,7 @@ const validateFields = (item, isPatch) => {
     };
   }
 
-  if (!item.events.length) {
+  if (item.attending === true && !item.events.length) {
     return {
       message: `You're really not coming to any events? Please click the 'RSVP for Events' button and let us know which ones you'll be attending.`,
       status: 400,
