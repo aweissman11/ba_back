@@ -85,6 +85,10 @@ router.patch('/api/rsvp', corSetting, (req, res, next) => {
   let item = req.body.Rsvp;
   item.last_updated = Date.now().toString();
 
+  if (!item.comment.length) {
+    delete item.comment;
+  }
+
   let missingPropCheck = validateFields(item, true);
 
   if (!missingPropCheck.ok) {
