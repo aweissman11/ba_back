@@ -52,6 +52,10 @@ router.get('/', function (req, res, next) {
 router.post('/api/rsvp', corSetting, (req, res, next) => {
   let item = req.body.Rsvp;
 
+  if (!item.comment.length) {
+    delete item.comment;
+  }
+
   let missingPropCheck = validateFields(item);
 
   if (!missingPropCheck.ok) {
