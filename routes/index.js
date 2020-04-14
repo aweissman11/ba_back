@@ -52,7 +52,7 @@ router.get('/', function (req, res, next) {
 router.post('/api/rsvp', corSetting, (req, res, next) => {
   let item = req.body.Rsvp;
 
-  if (!item.comment.length) {
+  if (item.comment && !item.comment.length) {
     delete item.comment;
   }
 
@@ -89,7 +89,7 @@ router.patch('/api/rsvp', corSetting, (req, res, next) => {
   let item = req.body.Rsvp;
   item.last_updated = Date.now().toString();
 
-  if (!item.comment.length) {
+  if (item.comment && !item.comment.length) {
     delete item.comment;
   }
 
